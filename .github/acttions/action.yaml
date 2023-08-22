@@ -1,0 +1,33 @@
+name: 'Protect Branch'
+description: 'Prevent direct pushes and ensure only specific branches can merge'
+inputs:
+  baseBranch:
+    description: 'Base branch to protect (e.g., release, dev)'
+    required: true
+  allowedBranches:
+    description: 'Comma-separated list of branches allowed to merge into the base branch (e.g., develop,hotfix/*)'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: 🚨 Fail if push is made directly to ${{ inputs.baseBranch }} 🚨
+      run: |
+        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/${{ inputs.baseBranch }}" ]]; then
+          echo "Error: Direct pushes to ${{ inputs.baseBranch }} are not allowed."
+          exit 1
+        fi
+      shell: bash
+
+    - name: 🧐 Check if source branch is allowed 🧐
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "${{ inputs.baseBranch }}" ]]; then
+          IFS=',' read -ra ALLOWED_BRANCHES <<< "${{ inputs.allowedBranches }}"
+          for branch in "${ALLOWED_BRANCHES[@]}"; do
+            if [[ "${{ github.head_ref }}" == $branch ]]; then
+              exit 0
+            fi
+          done
+          echo "Error: The source branch is not allowed to merge into ${{ inputs.baseBranch }}."
+          exit 1
+        fi
+      shell: bash
