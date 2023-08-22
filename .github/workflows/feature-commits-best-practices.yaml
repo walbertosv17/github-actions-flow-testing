@@ -1,0 +1,21 @@
+name: 📏 Commit Message Length Check 📏
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+
+  # 📝 Verify Commit Message Length 📝 #
+  check-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout code 📥
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: 🔍 Check Commit Length 🔍
+      run: ./scripts/feature-branch-scripts/check_commit_length.sh ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
