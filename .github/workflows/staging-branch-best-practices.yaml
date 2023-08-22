@@ -1,0 +1,18 @@
+name: Use Protect Branch Action
+
+on:
+  push:
+    branches:
+      - release/*
+  pull_request:
+    branches:
+      - release/*
+
+jobs:
+  protect-branch:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: [YourGitHubUsername]/protect-branch-action@main
+      with:
+        baseBranch: 'release'
+        allowedBranches: 'develop,hotfix/*'

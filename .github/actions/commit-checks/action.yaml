@@ -1,0 +1,25 @@
+name: 'Commit Checks'
+description: 'Check commit message length and format'
+inputs:
+  baseSha:
+    description: 'Base SHA of the pull request'
+    required: true
+  headSha:
+    description: 'Head SHA of the pull request'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: 📥 Checkout code 📥
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: 🔍 Check Commit Length 🔍
+      run: ./scripts/feature-branch-scripts/check_commit_length.sh ${{ inputs.baseSha }} ${{ inputs.headSha }}
+      shell: bash
+
+    - name: 🧪 Check commit messages 🧪
+      run: ./scripts/feature-branch-scripts/check_commit_messages.sh
+      shell: bash
