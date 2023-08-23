@@ -1,0 +1,23 @@
+name: commits-best-practices
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    branches:
+      - '*feature/*'
+
+jobs:
+  commit-checks:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check commit messages in the feature branches
+      uses: ./.github/actions/commit-checks
+      with:
+        baseSha: ${{ github.event.pull_request.base.sha }}
+        headSha: ${{ github.event.pull_request.head.sha }}

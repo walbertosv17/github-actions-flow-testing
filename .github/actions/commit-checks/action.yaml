@@ -17,9 +17,40 @@ runs:
         fetch-depth: 0
 
     - name: 🔍 Check Commit Length 🔍
-      run: ./scripts/feature-branch-scripts/check_commit_length.sh ${{ inputs.baseSha }} ${{ inputs.headSha }}
-      shell: bash
+        run: |
+          commits=$(git log --pretty=format:"%s" ${{ inputs.baseSha }}..${{ inputs.headSha }})
+          for commit in $commits; do
+            length=$(echo -n $commit | wc -c)
+            if [ $length -lt 30 ]; then
+              echo "❌ error: Commit message is less than 30 characters"
+              exit 1
+            else
+              echo "✅ Commit message is valid!"
+            fi
+          done
+        shell: bash
 
     - name: 🧪 Check commit messages 🧪
-      run: ./scripts/feature-branch-scripts/check_commit_messages.sh
-      shell: bash
+        run: |
+          commits=$(git log --pretty=format:"%s" ${{ inputs.baseSha }}..${{ inputs.headSha }})
+          error_flag=false
+
+          while read -r commit; do
+            if [[ ! $commit =~ ^(build|chore|ci|docs|style|refactor|perf|test|feat|fix|revert)(\([a-zA-Z0-9_-]+\))?:[[:space:]].+ ]]; then
+              echo "❌ Error: Commit message does not follow Conventional Commits with scope: $commit"
+              error_flag=true
+            fi
+          done <<< "$commits"
+
+          if [ "$error_flag" = true ]; then
+            echo "❌ Commit message check failed. Please fix the commit messages."
+            exit 1
+          else
+            echo "✅ All commit messages are valid."
+          fi
+        shell: bash
+
+
+
+
+
