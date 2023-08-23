@@ -12,7 +12,11 @@ jobs:
   commit-checks:
     runs-on: ubuntu-latest
     steps:
-    - uses: ./.github/actions/commit-checks
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check commit messages in the feature branches
+      uses: ./.github/actions/commit-checks
       with:
         baseSha: ${{ github.event.pull_request.base.sha }}
         headSha: ${{ github.event.pull_request.head.sha }}

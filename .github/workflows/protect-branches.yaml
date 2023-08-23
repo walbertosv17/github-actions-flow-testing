@@ -12,7 +12,11 @@ jobs:
   protect-dev-branch:
     runs-on: ubuntu-latest
     steps:
-    - uses: ./.github/actions/protect-branch
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Ensure dev branch follows gitflow
+      uses: ./.github/actions/protect-branch
       with:
         baseBranch: 'dev'
         allowedBranches: 'feature/*'
