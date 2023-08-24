@@ -1,0 +1,30 @@
+name: 'Check PR Description Length'
+description: 'Ensure PR description is at least 180 characters long'
+inputs:
+  token:
+    description: 'GitHub token'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Install GitHub CLI
+      run: |
+        type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+        && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+        && sudo apt update \
+        && sudo apt install gh -y
+      shell: bash
+
+    - name: Check PR description length
+      run: |
+        PR_BODY=$(gh pr view https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }} --json body -q ".body")
+        PR_BODY_LENGTH=${#PR_BODY}
+        if [[ $PR_BODY_LENGTH -lt 180 ]]; then
+          echo "❌ Error: PR description is less than 180 characters. 📝"
+          exit 1
+        fi
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}

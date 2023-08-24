@@ -14,9 +14,15 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Check commit messages in the feature branches
-      uses: ./.github/actions/commit-checks
+      
+    - name: Check PR description length
+      uses: ./.github/actions/check-pr-description-length
       with:
-        baseSha: ${{ github.event.pull_request.base.sha }}
-        headSha: ${{ github.event.pull_request.head.sha }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # - name: Check commit messages in the feature branches
+    #   uses: ./.github/actions/commit-checks
+    #   with:
+    #     baseSha: ${{ github.event.pull_request.base.sha }}
+    #     headSha: ${{ github.event.pull_request.head.sha }}
+  
